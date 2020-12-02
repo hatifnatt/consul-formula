@@ -1,0 +1,28 @@
+{#- Get the `tplroot` from `tplfile` we want same level as map.jinja
+    map.jinja must be imported without context like
+    from "./map.jinja" import somevar #}
+{% set tplroot = tplfile.split('/')[0] %}
+
+{#- Start imports as #}
+{% import_yaml tplroot ~ "/defaults.yaml" as defaults %}
+{% import_yaml tplroot ~ "/osfamilymap.yaml" as osfamilymap %}
+{% import_yaml tplroot ~ "/osmap.yaml" as osmap %}
+{% import_yaml tplroot ~ "/osfingermap.yaml" as osfingermap %}
+
+{% set  consul = salt['grains.filter_by'](
+          defaults,
+          merge=salt['grains.filter_by'](
+            osfamilymap,
+            grain='os_family',
+            merge=salt['grains.filter_by'](
+              osmap,
+              grain='os',
+              merge=salt['grains.filter_by'](
+                osfingermap,
+                grain='osfinger',
+                merge=salt['pillar.get']('consul', {})
+              )
+            )
+          )
+        )
+%}

@@ -1,0 +1,9 @@
+# If you do not need to provide defaults via the `os_family` grain,
+# you will need to provide at least an empty dict in this file, e.g.
+# osfamilymap: {}
+---
+Debian:
+  env_file: /etc/default/consul
+
+RedHat:
+  env_file: /etc/sysconfig/consul

@@ -1,0 +1,19 @@
+# Set the command-line arguments to pass to the server.
+{# Changes in systemd version 241:
+   The files read from the EnvironmentFile= setting in unit files now
+   parse backslashes inside quotes literally, matching the behaviour of
+   POSIX shells.-#}
+{% set systemd_version = salt.pkg.version('systemd') -%}
+{% if salt.pkg.version_cmp(systemd_version, '241') == -1 -%}
+{%   set nl_sep = ' \\' -%}
+{% else -%}
+{%   set nl_sep = '' -%}
+{% endif -%}
+
+{% if params|length > 0 -%}
+ARGS='{% for k, v in params.items() -%}
+-{{ k }}={{ v }}{% if not loop.last %}{{ nl_sep }}{% else %}'{% endif %}
+{% endfor -%}
+{% else -%}
+ARGS=''
+{% endif %}

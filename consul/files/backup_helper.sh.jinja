@@ -1,0 +1,78 @@
+{% from tplroot ~ "/map.jinja" import consul as c -%}
+#!/usr/bin/env bash
+CONSUL_HTTP_TOKEN=$(grep -oP "\"master\"\: \"\K(.*)(?=\")" {{ c['params']['config-file'] }})
+DATETIME='date +%F_%H-%M-%S'
+BACKUP_FIlE="{{ c.backup_dir }}/consul_$(hostname)_$($DATETIME).snap"
+
+_help(){
+  echo "Usage:
+  -h | --help  This short help.
+  --backup     Create backup.
+  --clean      Clean backup directory."
+}
+
+function _check(){
+	if [[ -n "$CONSUL_HTTP_TOKEN" ]]; then
+		export CONSUL_HTTP_TOKEN
+		return 0
+	else
+		echo "Can't get master token from config file: {{ c['params']['config-file'] }}" > 2
+		return 1
+	fi
+}
+
+function _backup_cmd(){
+	consul snapshot save $BACKUP_FIlE
+}
+
+function _backup(){
+	if _check; then
+		if _backup_cmd; then
+			echo "Backup saved as $BACKUP_FIlE"
+		else
+			echo "Failed to create backup" > 2
+		fi
+	fi
+}
+
+function _clean(){
+	find "{{ c.backup_dir }}" -type f -delete
+	echo "Old backups are removed"
+}
+
+if [[ $# -eq 0 ]]; then
+	_help
+fi
+
+cd {{ c.backup_dir }}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h | --help)
+            # Display help
+            _help
+            exit 0
+            ;;
+        --clean)
+            _clean
+            shift
+            ;;
+        --backup)
+            _backup
+            shift
+            ;;
+        --) # End of all options
+            shift
+            break
+            ;;
+        -*)
+            echo "Error: Unknown option: $1" >&2
+            _help
+            exit 1
+            ;;
+        *)
+            # No more options, break from loop
+            break
+            ;;
+    esac
+done

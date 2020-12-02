@@ -1,0 +1,32 @@
+# If you do not need to provide defaults via the `os_finger` grain,
+# you will need to provide at least an empty dict in this file, e.g.
+# osfingermap: {}
+---
+# os: Debian
+Debian-10:
+  tls:
+    packages:
+      - openssl
+      - python3-m2crypto
+Debian-9:
+  tls:
+    packages:
+      - openssl
+      - python-m2crypto
+Debian-8:
+  tls:
+    packages:
+      - openssl
+      - python3-m2crypto
+
+# os: CentOS
+CentOS Linux-8:
+  tls:
+    packages:
+      - openssl
+      - python3-m2crypto
+CentOS Linux-7:
+  tls:
+    packages:
+      - openssl
+      - m2crypto

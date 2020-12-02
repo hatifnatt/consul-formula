@@ -1,0 +1,26 @@
+{% from tplroot ~ "/map.jinja" import consul as c -%}
+{%- set run_dir = salt['file.dirname'](c['params']['pid-file']) %}
+[Unit]
+Description="HashiCorp Consul - A service mesh solution"
+Documentation=https://www.consul.io/
+Requires=network-online.target
+After=network-online.target
+ConditionFileNotEmpty={{ c['params']['config-file'] }}
+
+[Service]
+User={{ c['user'] }}
+Group={{ c['group'] }}
+PIDFile={{ c['params']['pid-file'] }}
+PermissionsStartOnly=true
+ExecStartPre=-/bin/mkdir -p {{ run_dir }}
+ExecStartPre=/bin/chown -R {{ c.user }}:{{ c.group }} {{ run_dir }}
+EnvironmentFile=-{{ c['env_file'] }}
+ExecStart=/usr/local/bin/consul agent $ARGS
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+KillSignal=SIGTERM
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
