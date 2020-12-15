@@ -42,13 +42,13 @@ consul_selfsigned_tls_cert:
     and 'cert_file' in c.config
 %}
 
-{%- if c.tls.key_file_source.startswith('salt://') %}
+{%- if c.tls.key_file_source.startswith('salt://') or c.tls.key_file_source.startswith('/') %}
   {%- set key_file_source = c.tls.key_file_source %}
 {%- else %}
   {%- set key_file_source = 'salt://' ~ tplroot ~ '/tls/' ~ c.tls.key_file_source %}
 {%- endif %}
 
-{%- if c.tls.cert_file_source.startswith('salt://') %}
+{%- if c.tls.cert_file_source.startswith('salt://') or c.tls.cert_file_source.startswith('/') %}
   {%- set cert_file_source = c.tls.cert_file_source %}
 {%- else %}
   {%- set cert_file_source = 'salt://' ~ tplroot ~ '/tls/' ~ c.tls.cert_file_source %}

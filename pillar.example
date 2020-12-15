@@ -40,6 +40,9 @@ consul:
     packages:
       - openssl
       - python3-m2crypto
+    # If path starts with 'salt://' or '/' value will be used 'as is'
+    # file from salt-filserver or local file will be used respectively
+    # otherwise file will be searched in 'formula-root/tls/' on salt-fileserver
     key_file_source: tls.key
     cert_file_source: tls.crt
     cert_params:
@@ -74,6 +77,21 @@ consul:
     # it's mandatory to provide path to key and certificate, otherwise certificate will not be issued
     key_file: /etc/consul.d/tls.key
     cert_file: /etc/consul.d/tls.crt
+
+# Enable HTTPS with provided local (on minion) certificate
+consul:
+  tls:
+    self_signed: False
+    key_file_source: /etc/pki/api/consul/myminion.key
+    cert_file_source: /etc/pki/api/consul/myminion.crt
+  config:
+    ports:
+      https: 8501
+    # it's mandatory to provide path to key and certificate,
+    # provided key and cert will be copied to key_file and cert_file respectively
+    key_file: /etc/consul.d/tls.key
+    cert_file: /etc/consul.d/tls.crt
+
 
 # Enable and configure ACL
 # In example below you can find minimal required policies
