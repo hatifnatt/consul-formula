@@ -109,6 +109,7 @@ consul_data_dir:
     - user: {{ c.user }}
     - group: {{ c.group }}
     - dir_mode: 750
+    - makedirs: True
     - require_in:
       - service: consul_service
 
