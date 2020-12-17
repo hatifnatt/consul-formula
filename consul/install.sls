@@ -82,6 +82,25 @@ consul_bin_symlink:
       - archive: consul_extract_bin
       - file: consul_install_bin
 
+{# Fix problem with service startup due SELinux restrictions on RedHat falmily OS-es
+thx. https://github.com/saltstack-formulas/consul-formula/issues/49 for idea #}
+{% if grains['os_family'] == 'RedHat' -%}
+consul_bin_restorecon:
+  module.run:
+  {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
+  {%- if 'module.run' in salt['config.get']('use_superseded', [])
+      or grains['saltversioninfo'] >= [3005] %}
+    - file.restorecon:
+        - {{ c.bin }}-{{ c.version }}
+  {%- else %}
+    - name: file.restorecon
+    - path: {{ c.bin }}-{{ c.version }}
+  {%- endif %}
+    - require:
+      - file: consul_install_bin
+    - onlyif: "LC_ALL=C restorecon -vn {{ c.bin }}-{{ c.version }} | grep -q 'Would relabel'"
+{% endif -%}
+
 # Install systemwide autocomplete for bash
 {% if c.bash_autocomplete and salt.file.directory_exists('/etc/bash_completion.d') -%}
 consul_bash_autocomplete:
