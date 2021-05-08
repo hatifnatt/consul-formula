@@ -13,6 +13,7 @@ default:
   temp_dir: /tmp/consul
   backup_dir: /var/lib/consul/backup
   backup_helper: True
+  systemd_unit_dir: /usr/lib/systemd/system
   service_name: consul
   reload: False
   bash_autocomplete: True

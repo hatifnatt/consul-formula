@@ -24,6 +24,8 @@ consul:
   backup_dir: /var/lib/consul/backup
   # Install backup helper script or not
   backup_helper: True
+  # directory where systemd service unit file will be saved
+  systemd_unit_dir: /usr/lib/systemd/system
   service_name: consul
   # When triggering service after configuration changes use reload instead of restart
   reload: False

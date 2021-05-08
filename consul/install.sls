@@ -115,7 +115,7 @@ consul_bash_autocomplete:
 {%- if grains.init == 'systemd' %}
 consul_systemd_unit:
   file.managed:
-    - name: /usr/lib/systemd/system/{{ c.service_name }}.service
+    - name: {{ salt['file.join'](c.systemd_unit_dir,c.service_name ~ '.service') }}
     - source: salt://{{ tplroot }}/files/consul.service.jinja
     - user: {{ c.root_user }}
     - group: {{ c.root_group }}
