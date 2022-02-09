@@ -2,28 +2,28 @@ default:
   version: 1.9.0
   download_remote: https://releases.hashicorp.com/consul/
   source_hash_remote: https://releases.hashicorp.com/consul/
-  skip_verify: False
+  skip_verify: false
   user: consul
   group: consul
   root_user: root
   root_group: root
   bin: /usr/local/bin/consul
   conf_source: consul.json.jinja
-  show_changes: False
+  show_changes: false
   temp_dir: /tmp/consul
   backup_dir: /var/lib/consul/backup
-  backup_helper: True
+  backup_helper: true
   systemd_unit_dir: /usr/lib/systemd/system
   service_name: consul
-  reload: False
-  bash_autocomplete: True
+  reload: false
+  bash_autocomplete: true
   prereq_pkgs:
     - unzip
   params:
     config-file: /etc/consul.d/consul.json
     pid-file: /run/consul/consul.pid
   tls:
-    self_signed: False
+    self_signed: false
     packages:
       - openssl
       - python3-m2crypto
@@ -34,14 +34,14 @@ default:
       CN: {{ grains.fqdn }}
   config:
     data_dir: /var/lib/consul/data
-    server: False
+    server: false
     ui_config:
-      enabled: True
+      enabled: true
     log_level: info
     acl:
-      enabled: False
+      enabled: false
       default_policy: deny
     telemetry:
       # 12h retention for better calculated metrics ... I think
       prometheus_retention_time: 12h
-      disable_hostname: True
+      disable_hostname: true

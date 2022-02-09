@@ -8,7 +8,7 @@ consul:
   source_hash_remote: https://releases.hashicorp.com/consul/
   # Skip checksum verification, by default checksum will be verified.
   # You probably want to disable checksum verification if you download distributive from salt fileserver (salt://...)
-  skip_verify: False
+  skip_verify: false
   user: consul
   group: consul
   root_user: root
@@ -16,21 +16,21 @@ consul:
   bin: /usr/local/bin/consul
   conf_source: consul.json.jinja
   # Don't show diff when updating config file - don't reveal tokens.
-  show_changes: False
+  show_changes: false
   # Temp dir for manipulations with archive
   temp_dir: /tmp/consul
   env_file: /etc/default/consul
   # Where to store backups
   backup_dir: /var/lib/consul/backup
   # Install backup helper script or not
-  backup_helper: True
+  backup_helper: true
   # directory where systemd service unit file will be saved
   systemd_unit_dir: /usr/lib/systemd/system
   service_name: consul
   # When triggering service after configuration changes use reload instead of restart
-  reload: False
+  reload: false
   # Install bash completion configuration
-  bash_autocomplete: True
+  bash_autocomplete: true
   # Start parameters (command line arguments) for consul, consul service will be started with this parameters
   # some parameters have their equivalent in configuration file, it is preferable to put parameters in the config file
   # rather than as command line arguments
@@ -38,7 +38,7 @@ consul:
     config-file: /etc/consul.d/consul.json
     pid-file: /run/consul/consul.pid
   tls:
-    self_signed: False
+    self_signed: false
     packages:
       - openssl
       - python3-m2crypto
@@ -52,7 +52,7 @@ consul:
       CN: {{ grains.fqdn }}
   config:
     data_dir: /var/lib/consul
-    server: False
+    server: false
     # Encryption key encoded with base64. It can be generated with `consul keygen` command or with
     # `dd if=/dev/urandom bs=1 count=16 2>/dev/null | base64`
     # `dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64`
@@ -60,7 +60,7 @@ consul:
     # https://www.consul.io/docs/agent/encryption.html
     encrypt: pLw1SiufNVHDc/FQD4WQN+phbJiLVgiWA31x8rQbq9c=
     ui_config:
-      enabled: True
+      enabled: true
     log_level: info
     # Consul > 1.0 support go-sockaddr templates for addresses
     # https://godoc.org/github.com/hashicorp/go-sockaddr/template
@@ -70,7 +70,7 @@ consul:
 # Enable HTTPS with self signed certificate
 consul:
   tls:
-    self_signed: True
+    self_signed: true
     cert_params:
       subjectAltName: DNS:vault.example.com, DNS:another.name.tld
   config:
@@ -83,7 +83,7 @@ consul:
 # Enable HTTPS with provided local (on minion) certificate
 consul:
   tls:
-    self_signed: False
+    self_signed: false
     key_file_source: /etc/pki/api/consul/myminion.key
     cert_file_source: /etc/pki/api/consul/myminion.crt
   config:
@@ -101,7 +101,7 @@ consul:
 consul:
   config:
     acl:
-      enabled: True
+      enabled: true
       default_policy: deny
       down_policy: extend-cache
       tokens:
