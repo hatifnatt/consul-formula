@@ -1,6 +1,10 @@
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- from tplroot ~ '/map.jinja' import consul as c %}
 {% set conf_dir = salt['file.dirname'](c['params']['config-file']) -%}
+
+include:
+  - {{ tplroot }}.shell_completion.bash.install
+
 {# Install prerequisies #}
 consul_binary_install_prerequisites:
   pkg.installed:
@@ -80,6 +84,8 @@ consul_binary_install_bin_symlink:
     - require:
       - archive: consul_binary_install_extract_bin
       - file: consul_binary_install_install_bin
+    - require_in:
+      - sls: {{ tplroot }}.shell_completion.bash.install
 
 {# Fix problem with service startup due SELinux restrictions on RedHat falmily OS-es
 thx. https://github.com/saltstack-formulas/consul-formula/issues/49 for idea #}
@@ -97,17 +103,9 @@ consul_binary_install_bin_restorecon:
   {%- endif %}
     - require:
       - file: consul_binary_install_install_bin
+    - require_in:
+      - sls: {{ tplroot }}.shell_completion.bash.install
     - onlyif: "LC_ALL=C restorecon -vn {{ c.bin }}-{{ c.version }} | grep -q 'Would relabel'"
-{% endif -%}
-
-# Install systemwide autocomplete for bash
-{% if c.bash_autocomplete and salt.file.directory_exists('/etc/bash_completion.d') -%}
-consul_binary_install_bash_autocomplete:
-  file.managed:
-    - name: /etc/bash_completion.d/consul
-    - mode: 644
-    - contents: |
-        complete -C {{ c.bin }} consul
 {% endif -%}
 
 # Install systemd service file

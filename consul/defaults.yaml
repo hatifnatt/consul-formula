@@ -17,7 +17,11 @@ default:
   systemd_unit_dir: /usr/lib/systemd/system
   service_name: consul
   reload: false
-  bash_autocomplete: true
+  shell_completion:
+    bash:
+      install: true
+      package: bash-completion
+      dir: /etc/bash_completion.d
   prereq_pkgs:
     - unzip
   params:
