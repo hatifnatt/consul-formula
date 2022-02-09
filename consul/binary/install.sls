@@ -5,6 +5,7 @@
 include:
   - {{ tplroot }}.shell_completion.bash.install
   - {{ tplroot }}.backup_helper.install
+  - {{ slsdotpath }}.service.install
 
 {# Install prerequisies #}
 consul_binary_install_prerequisites:
@@ -109,36 +110,10 @@ consul_binary_install_bin_restorecon:
     - onlyif: "LC_ALL=C restorecon -vn {{ c.bin }}-{{ c.version }} | grep -q 'Would relabel'"
 {% endif -%}
 
-# Install systemd service file
-{%- if grains.init == 'systemd' %}
-consul_binary_install_systemd_unit:
-  file.managed:
-    - name: {{ salt['file.join'](c.systemd_unit_dir,c.service_name ~ '.service') }}
-    - source: salt://{{ tplroot }}/files/consul.service.jinja
-    - user: {{ c.root_user }}
-    - group: {{ c.root_group }}
-    - mode: 644
-    - template: jinja
-    - context:
-        tplroot: {{ tplroot }}
-    - watch_in:
-      - module: consul_binary_install_reload_systemd
-
-{# Reload systemd after new unit file added, like `systemctl daemon-reload` #}
-consul_binary_install_reload_systemd:
-  module.wait:
-  {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
-  {%- if 'module.run' in salt['config.get']('use_superseded', [])
-      or grains['saltversioninfo'] >= [3005] %}
-    - service.systemctl_reload: {}
-  {%- else %}
-    - name: service.systemctl_reload
-  {%- endif %}
-{% endif -%}
-
 {# Remove temporary files #}
 consul_binary_install_cleanup:
   file.absent:
     - name: {{ c.temp_dir }}
     - require_in:
       - sls: {{ tplroot }}.backup_helper.install
+      - sls: {{ slsdotpath }}.service.install
