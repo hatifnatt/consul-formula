@@ -4,6 +4,7 @@
 
 include:
   - {{ tplroot }}.shell_completion.bash.install
+  - {{ tplroot }}.backup_helper.install
 
 {# Install prerequisies #}
 consul_binary_install_prerequisites:
@@ -135,27 +136,9 @@ consul_binary_install_reload_systemd:
   {%- endif %}
 {% endif -%}
 
-# Install backup helper script
-{% if c.backup_helper -%}
-consul_binary_install_backup_dir:
-  file.directory:
-    - name: {{ c.backup_dir }}
-    - user: {{ c.user }}
-    - group: {{ c.group }}
-    - mode: 750
-    - makedirs: True
-
-consul_binary_install_backup_helper:
-  file.managed:
-    - name: /usr/local/bin/consul_backup
-    - source: salt://{{ tplroot }}/files/backup_helper.sh.jinja
-    - mode: 755
-    - template: jinja
-    - context:
-        tplroot: {{ tplroot }}
-{% endif -%}
-
 {# Remove temporary files #}
 consul_binary_install_cleanup:
   file.absent:
     - name: {{ c.temp_dir }}
+    - require_in:
+      - sls: {{ tplroot }}.backup_helper.install

@@ -13,7 +13,8 @@ default:
   show_changes: false
   temp_dir: /tmp/consul
   backup_dir: /var/lib/consul/backup
-  backup_helper: true
+  backup_helper:
+    install: true
   systemd_unit_dir: /usr/lib/systemd/system
   service_name: consul
   reload: false
