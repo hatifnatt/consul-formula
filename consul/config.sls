@@ -2,6 +2,7 @@
 {% from "./macros.jinja" import format_kwargs -%}
 {# Get 'current working directory' - path where current state file is located -#}
 {% set tplroot = tplfile.split('/')[:-1] | join('/') -%}
+{% set conf_dir = salt['file.dirname'](c['params']['config-file']) -%}
 
 include:
   - .install
@@ -85,6 +86,14 @@ consul_env_file:
         params: {{ c.params|tojson }}
     - watch_in:
       - service: consul_service
+
+{#- Create data dir #}
+consul_conf_dir:
+  file.directory:
+    - name: {{ conf_dir }}
+    - user: {{ c.user }}
+    - group: {{ c.group }}
+    - dir_mode: 755
 
 {#- Put config file in place #}
 consul_config:

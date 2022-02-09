@@ -32,13 +32,6 @@ consul_binary_install_user:
       - group: consul_binary_install_group
 
 {# Create directories #}
-consul_binary_install_conf_dir:
-  file.directory:
-    - name: {{ conf_dir }}
-    - user: {{ c.user }}
-    - group: {{ c.group }}
-    - dir_mode: 755
-
 consul_binary_install_bin_dir:
   file.directory:
     - name: {{ salt['file.dirname'](c.bin) }}
