@@ -1,5 +1,6 @@
 default:
   version: 1.9.0
+  use_upstream: binary # package, repo / binary, archive
   download_remote: https://releases.hashicorp.com/consul/
   source_hash_remote: https://releases.hashicorp.com/consul/
   skip_verify: false
