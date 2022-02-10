@@ -1,6 +1,6 @@
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- from tplroot ~ '/map.jinja' import consul as c %}
-{%- from tplroot ~ '/macros.jinja' import format_kwargs -%}
+{%- from tplroot ~ '/macros.jinja' import format_kwargs, build_source %}
 
 include:
   - {{ tplroot }}.service
@@ -41,22 +41,11 @@ consul_config_tls_selfsigned_cert:
     and 'cert_file' in c.config
 %}
 
-  {%- if c.tls.key_file_source.startswith('salt://') or c.tls.key_file_source.startswith('/') %}
-    {%- set key_file_source = c.tls.key_file_source %}
-  {%- else %}
-    {%- set key_file_source = 'salt://' ~ tplroot ~ '/files/tls/' ~ c.tls.key_file_source %}
-  {%- endif %}
-
-  {%- if c.tls.cert_file_source.startswith('salt://') or c.tls.cert_file_source.startswith('/') %}
-    {%- set cert_file_source = c.tls.cert_file_source %}
-  {%- else %}
-    {%- set cert_file_source = 'salt://' ~ tplroot ~ '/files/tls/' ~ c.tls.cert_file_source %}
-  {%- endif %}
-
 consul_config_tls_provided_key:
   file.managed:
     - name: {{ c.config.key_file }}
-    - source: {{ key_file_source }}
+    - source:
+    {{- build_source(c.tls.key_file_source, path_prefix='files/tls') }}
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 640
@@ -66,7 +55,8 @@ consul_config_tls_provided_key:
 consul_config_tls_provided_cert:
   file.managed:
     - name: {{ c.config.cert_file }}
-    - source: {{ cert_file_source }}
+    - source:
+    {{- build_source(c.tls.cert_file_source, path_prefix='files/tls') }}
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 640
