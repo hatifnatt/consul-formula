@@ -1,8 +1,9 @@
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- from tplroot ~ '/map.jinja' import consul as c %}
 
-{#- Install systemd service file #}
-{%- if grains.init == 'systemd' %}
+{%- if c.install %}
+  {#- Install systemd service file #}
+  {%- if grains.init == 'systemd' %}
 include:
   - {{ tplroot }}.service
 
@@ -21,20 +22,20 @@ consul_binary_service_install_systemd_unit:
     - watch_in:
       - module: consul_binary_service_install_reload_systemd
 
-  {#- Reload systemd after new unit file added, like `systemctl daemon-reload` #}
+    {#- Reload systemd after new unit file added, like `systemctl daemon-reload` #}
 consul_binary_service_install_reload_systemd:
   module.wait:
-  {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
-  {%- if 'module.run' in salt['config.get']('use_superseded', [])
+    {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
+    {%- if 'module.run' in salt['config.get']('use_superseded', [])
       or grains['saltversioninfo'] >= [3005] %}
     - service.systemctl_reload: {}
-  {%- else %}
+    {%- else %}
     - name: service.systemctl_reload
-  {%- endif %}
+    {%- endif %}
     - require_in:
       - sls: {{ tplroot }}.service
 
-{%- else %}
+  {%- else %}
 consul_binary_service_install_warning:
   test.configurable_test_state:
     - name: consul_binary_service_install
@@ -43,5 +44,17 @@ consul_binary_service_install_warning:
     - comment: |
         Your OS init system is {{ grains.init }}, currently only systemd init system is supported.
         Service for Consul is not installed.
+
+  {%- endif %}
+
+{#- Consul is not selected for installation #}
+{%- else %}
+consul_binary_service_install_notice:
+  test.show_notification:
+    - name: consul_binary_service_install
+    - text: |
+        Consul is not selected for installation, current value
+        for 'consul:install': {{ c.install|string|lower }}, if you want to install Consul
+        you need to set it to 'true'.
 
 {%- endif %}

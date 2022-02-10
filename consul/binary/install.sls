@@ -2,17 +2,19 @@
 {%- from tplroot ~ '/map.jinja' import consul as c %}
 {% set conf_dir = salt['file.dirname'](c['params']['config-file']) -%}
 
+{%- if c.install %}
+  {#- Install Consul from precompiled binary #}
 include:
   - {{ tplroot }}.shell_completion.bash.install
   - {{ tplroot }}.backup_helper.install
   - {{ slsdotpath }}.service.install
 
-{# Install prerequisies #}
+  {#- Install prerequisies #}
 consul_binary_install_prerequisites:
   pkg.installed:
     - pkgs: {{ c.prereq_pkgs|tojson }}
 
-{# Create group and user #}
+  {#- Create group and user #}
 consul_binary_install_group:
   group.present:
     - name: {{ c.group }}
@@ -31,23 +33,23 @@ consul_binary_install_user:
     - require:
       - group: consul_binary_install_group
 
-{# Create directories #}
+  {#- Create directories #}
 consul_binary_install_bin_dir:
   file.directory:
     - name: {{ salt['file.dirname'](c.bin) }}
     - makedirs: True
 
-{# Download archive, extract archive install binary to it's place #}
-{# TODO: Download and validate SHA file with gpg? https://www.hashicorp.com/security.html #}
+  {#- Download archive, extract archive install binary to it's place #}
+  {#- TODO: Download and validate SHA file with gpg? https://www.hashicorp.com/security.html #}
 consul_binary_install_download_archive:
   file.managed:
     - name: {{ c.temp_dir }}/{{ c.version }}/consul_{{ c.version }}_linux_amd64.zip
     - source: {{ c.download_remote }}{{ c.version }}/consul_{{ c.version }}_linux_amd64.zip
-    {%- if c.skip_verify %}
+  {%- if c.skip_verify %}
     - skip_verify: True
-    {%- else %}
+  {%- else %}
     - source_hash: {{ c.source_hash_remote }}{{ c.version }}/consul_{{ c.version }}_SHA256SUMS
-    {%- endif %}
+  {%- endif %}
     - makedirs: True
     - unless: test -f {{ c.bin }}-{{ c.version }}
 
@@ -70,7 +72,7 @@ consul_binary_install_install_bin:
     - watch:
       - archive: consul_binary_install_extract_bin
 
-{# Create symlink into system bin dir #}
+  {#- Create symlink into system bin dir #}
 consul_binary_install_bin_symlink:
   file.symlink:
     - name: {{ c.bin }}
@@ -82,31 +84,43 @@ consul_binary_install_bin_symlink:
     - require_in:
       - sls: {{ tplroot }}.shell_completion.bash.install
 
-{# Fix problem with service startup due SELinux restrictions on RedHat falmily OS-es
+  {#- Fix problem with service startup due SELinux restrictions on RedHat falmily OS-es
 thx. https://github.com/saltstack-formulas/consul-formula/issues/49 for idea #}
-{% if grains['os_family'] == 'RedHat' -%}
+  {%- if grains['os_family'] == 'RedHat' -%}
 consul_binary_install_bin_restorecon:
   module.run:
-  {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
-  {%- if 'module.run' in salt['config.get']('use_superseded', [])
+    {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
+    {%- if 'module.run' in salt['config.get']('use_superseded', [])
       or grains['saltversioninfo'] >= [3005] %}
     - file.restorecon:
         - {{ c.bin }}-{{ c.version }}
-  {%- else %}
+    {%- else %}
     - name: file.restorecon
     - path: {{ c.bin }}-{{ c.version }}
-  {%- endif %}
+    {%- endif %}
     - require:
       - file: consul_binary_install_install_bin
     - require_in:
       - sls: {{ tplroot }}.shell_completion.bash.install
     - onlyif: "LC_ALL=C restorecon -vn {{ c.bin }}-{{ c.version }} | grep -q 'Would relabel'"
-{% endif -%}
+  {% endif -%}
 
-{# Remove temporary files #}
+  {#- Remove temporary files #}
 consul_binary_install_cleanup:
   file.absent:
     - name: {{ c.temp_dir }}
     - require_in:
       - sls: {{ tplroot }}.backup_helper.install
       - sls: {{ slsdotpath }}.service.install
+
+{#- Consul is not selected for installation #}
+{%- else %}
+consul_binary_install_notice:
+  test.show_notification:
+    - name: consul_binary_install
+    - text: |
+        Consul is not selected for installation, current value
+        for 'consul:install': {{ c.install|string|lower }}, if you want to install Consul
+        you need to set it to 'true'.
+
+{%- endif %}
