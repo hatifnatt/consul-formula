@@ -6,6 +6,7 @@
 
 include:
   - .install
+  - .service
 
 {%- if c.tls.self_signed
     and 'key_file' in c.config
@@ -36,7 +37,7 @@ consul_selfsigned_tls_cert:
     - require:
       - x509: consul_selfsigned_tls_key
     - watch_in:
-      - service: consul_service
+      - service: consul_service_{{ c.service.status }}
 
 {%- elif not c.tls.self_signed
     and 'key_file' in c.config
@@ -63,7 +64,7 @@ consul_provided_tls_key:
     - group: {{ c.group }}
     - mode: 640
     - watch_in:
-      - service: consul_service
+      - service: consul_service_{{ c.service.status }}
 
 consul_provided_tls_cert:
   file.managed:
@@ -73,7 +74,7 @@ consul_provided_tls_cert:
     - group: {{ c.group }}
     - mode: 640
     - watch_in:
-      - service: consul_service
+      - service: consul_service_{{ c.service.status }}
 {%- endif %}
 
 {#- Create parameters / environment file #}
@@ -85,7 +86,7 @@ consul_env_file:
     - context:
         params: {{ c.params|tojson }}
     - watch_in:
-      - service: consul_service
+      - service: consul_service_{{ c.service.status }}
 
 {#- Create data dir #}
 consul_conf_dir:
@@ -110,6 +111,8 @@ consul_config:
     - show_changes: {{ c.show_changes }}
     - require:
         - file: consul_conf_dir
+    - watch_in:
+      - service: consul_service_{{ c.service.status }}
 
 {#- Create data dir #}
 consul_data_dir:
@@ -120,15 +123,4 @@ consul_data_dir:
     - dir_mode: 750
     - makedirs: True
     - require_in:
-      - service: consul_service
-
-{#- Enable and start service #}
-consul_service:
-  service.running:
-    - name: {{ c.service_name }}
-    - enable: True
-    - reload: {{ c.reload }}
-    - watch:
-      - file: consul_bin_symlink
-      - file: consul_config
-      - file: consul_systemd_unit
+      - service: consul_service_{{ c.service.status }}

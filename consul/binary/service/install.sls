@@ -3,9 +3,12 @@
 
 {#- Install systemd service file #}
 {%- if grains.init == 'systemd' %}
+include:
+  - {{ tplroot }}.service
+
 consul_binary_service_install_systemd_unit:
   file.managed:
-    - name: {{ salt['file.join'](c.systemd_unit_dir,c.service_name ~ '.service') }}
+    - name: {{ salt['file.join'](c.systemd_unit_dir,c.service.name ~ '.service') }}
     - source: salt://{{ tplroot }}/files/consul.service.jinja
     - user: {{ c.root_user }}
     - group: {{ c.root_group }}
@@ -13,6 +16,8 @@ consul_binary_service_install_systemd_unit:
     - template: jinja
     - context:
         tplroot: {{ tplroot }}
+    - require_in:
+      - sls: {{ tplroot }}.service
     - watch_in:
       - module: consul_binary_service_install_reload_systemd
 
@@ -26,6 +31,8 @@ consul_binary_service_install_reload_systemd:
   {%- else %}
     - name: service.systemctl_reload
   {%- endif %}
+    - require_in:
+      - sls: {{ tplroot }}.service
 
 {%- else %}
 consul_binary_service_install_warning:

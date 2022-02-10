@@ -1,5 +1,8 @@
 consul:
   version: 1.4.1
+  # control via pillar will Consul be installed or not
+  # NB not fully implemented yet
+  install: true
   # Formula will try download distributive from %download_remote%/%version%/consul_%version%_linux_amd64.zip
   # You can put archive with consul on salt-fileserver i.e. /filserver_root/DIST/consul/1.9.0/consul_1.9.0_linux_amd64.zip
   # Than you can specify salt://DIST/consul/ as 'download_remote'
@@ -26,7 +29,14 @@ consul:
   backup_helper: true
   # directory where systemd service unit file will be saved
   systemd_unit_dir: /usr/lib/systemd/system
-  service_name: consul
+  service:
+    name: consul
+    # running / dead
+    status: running
+    # enabled / disabled
+    on_boot_state: enabled
+    # use reload instead of restart
+    reload: false
   # When triggering service after configuration changes use reload instead of restart
   reload: false
   # Install bash completion configuration

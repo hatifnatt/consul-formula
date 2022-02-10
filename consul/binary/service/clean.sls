@@ -3,9 +3,14 @@
 
 {#- Install systemd service file #}
 {%- if grains.init == 'systemd' %}
+include:
+  - {{ tplroot }}.service.clean
+
 consul_binary_service_clean_systemd_unit:
   file.absent:
-    - name: {{ salt['file.join'](c.systemd_unit_dir,c.service_name ~ '.service') }}
+    - name: {{ salt['file.join'](c.systemd_unit_dir,c.service.name ~ '.service') }}
+    - require:
+      - sls: {{ tplroot }}.service.clean
     - watch_in:
       - module: consul_binary_service_clean_reload_systemd
 
