@@ -10,20 +10,20 @@ include:
     and 'cert_file' in c.config
 %}
   {#- Create self sifned TLS (SSL) certificate #}
-consul_tls_prereq_packages:
+consul_config_tls_prereq_packages:
   pkg.installed:
     - pkgs: {{ c.tls.packages|json }}
 
-consul_selfsigned_tls_key:
+consul_config_tls_selfsigned_key:
   x509.private_key_managed:
     - name: {{ c.config.key_file }}
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 640
     - require:
-      - pkg: consul_tls_prereq_packages
+      - pkg: consul_config_tls_prereq_packages
 
-consul_selfsigned_tls_cert:
+consul_config_tls_selfsigned_cert:
   x509.certificate_managed:
     - name: {{ c.config.cert_file }}
     - signing_private_key: {{ c.config.key_file }}
@@ -32,7 +32,7 @@ consul_selfsigned_tls_cert:
     - group: {{ c.group }}
     - mode: 640
     - require:
-      - x509: consul_selfsigned_tls_key
+      - x509: consul_config_tls_selfsigned_key
     - watch_in:
       - service: consul_service_{{ c.service.status }}
 
@@ -53,7 +53,7 @@ consul_selfsigned_tls_cert:
     {%- set cert_file_source = 'salt://' ~ tplroot ~ '/tls/' ~ c.tls.cert_file_source %}
   {%- endif %}
 
-consul_provided_tls_key:
+consul_config_tls_provided_key:
   file.managed:
     - name: {{ c.config.key_file }}
     - source: {{ key_file_source }}
@@ -63,7 +63,7 @@ consul_provided_tls_key:
     - watch_in:
       - service: consul_service_{{ c.service.status }}
 
-consul_provided_tls_cert:
+consul_config_tls_provided_cert:
   file.managed:
     - name: {{ c.config.cert_file }}
     - source: {{ cert_file_source }}

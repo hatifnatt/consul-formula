@@ -1,7 +1,7 @@
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- from tplroot ~ '/map.jinja' import consul as c %}
-{%- from tplroot ~ '/macros.jinja' import format_kwargs -%}
-{%- set conf_dir = salt['file.dirname'](c['params']['config-file']) -%}
+{%- from tplroot ~ '/macros.jinja' import format_kwargs %}
+{%- set conf_dir = salt['file.dirname'](c['params']['config-file']) %}
 
 include:
   - {{ tplroot }}.install
@@ -9,7 +9,7 @@ include:
   - {{ slsdotpath }}.tls
 
 {#- Create parameters / environment file #}
-consul_env_file:
+consul_config_env_file:
   file.managed:
     - name: {{ c.env_file }}
     - source: salt://{{ tplroot }}/files/env_params.jinja
@@ -20,7 +20,7 @@ consul_env_file:
       - service: consul_service_{{ c.service.status }}
 
 {#- Create data dir #}
-consul_conf_dir:
+consul_config_directory:
   file.directory:
     - name: {{ conf_dir }}
     - user: {{ c.user }}
@@ -28,7 +28,7 @@ consul_conf_dir:
     - dir_mode: 755
 
 {#- Put config file in place #}
-consul_config:
+consul_config_file:
   file.managed:
     - name: {{ c['params']['config-file'] }}
     - source: salt://{{ tplroot }}/files/{{ c.conf_source }}
@@ -41,13 +41,13 @@ consul_config:
     {#- By default don't show changes to don't reveal tokens. #}
     - show_changes: {{ c.show_changes }}
     - require:
-        - file: consul_conf_dir
+        - file: consul_config_directory
         - sls: {{ slsdotpath }}.tls
     - watch_in:
       - service: consul_service_{{ c.service.status }}
 
 {#- Create data dir #}
-consul_data_dir:
+consul_config_data_directory:
   file.directory:
     - name: {{ c.config.data_dir }}
     - user: {{ c.user }}
