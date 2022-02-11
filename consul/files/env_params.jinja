@@ -3,6 +3,7 @@
    The files read from the EnvironmentFile= setting in unit files now
    parse backslashes inside quotes literally, matching the behaviour of
    POSIX shells.-#}
+{% from tplroot ~ '/macros.jinja' import build_args -%}
 {% set systemd_version = salt.pkg.version('systemd') -%}
 {% if salt.pkg.version_cmp(systemd_version, '241') == -1 -%}
 {%   set nl_sep = ' \\' -%}
@@ -11,9 +12,7 @@
 {% endif -%}
 
 {% if params|length > 0 -%}
-ARGS='{% for k, v in params.items() -%}
--{{ k }}={{ v }}{% if not loop.last %}{{ nl_sep }}{% else %}'{% endif %}
-{% endfor -%}
+ARGS='{{ build_args(params,nl_sep=nl_sep) }}'
 {% else -%}
 ARGS=''
 {% endif %}

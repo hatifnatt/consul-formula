@@ -17,6 +17,7 @@ consul_config_env_file:
     - source: salt://{{ tplroot }}/files/env_params.jinja
     - template: jinja
     - context:
+        tplroot: {{ tplroot }}
         params: {{ c.params|tojson }}
     - watch_in:
       - service: consul_service_{{ c.service.status }}

@@ -30,3 +30,23 @@
 {% endif -%}
 {{ url|indent(indent_width, True) }}
 {%- endmacro %}
+
+{%- macro build_args(value, key='', ind=0, prefix='-', operator='=', nl_sep='', lb='\n') -%}
+  {#- If value is bool, num or string - render as is (but convert boolean to string) -#}
+  {#- Using 'sameas' comparison to check boolean because 'boolean' test added only in Jinja v2.11 -#}
+  {%- if value is number or value is string or value is sameas true or value is sameas false -%}
+    {%- if key and value -%}
+{{ prefix ~ key|indent(ind, True) }}{{ operator }}{{ value|string }}{{ nl_sep }}{{ lb }}
+    {%- endif -%}
+  {#- If value is mapping (dict) - call build_args() recursively -#}
+  {%- elif value is mapping -%}
+    {%- for k, v in value.items() -%}
+{{ build_args(v, k, ind, prefix, operator, nl_sep, lb) }}
+    {%- endfor -%}
+  {#- If value is list - call build_args() for each item effectively rendering 'key=value' for each list item -#}
+  {%- elif value is iterable -%}
+    {%- for v in value -%}
+{{ build_args(v, key, ind, prefix, operator, nl_sep, lb) }}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endmacro -%}
