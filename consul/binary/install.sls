@@ -33,6 +33,9 @@ consul_binary_install_user:
     - fullname: Consul daemon
     - require:
       - group: consul_binary_install_group
+    - require_in:
+      - sls: {{ tplroot }}.backup_helper.install
+      - sls: {{ slsdotpath }}.service.install
 
     {#- Create directories #}
 consul_binary_install_bin_dir:
