@@ -2,14 +2,16 @@
 {%- from tplroot ~ '/map.jinja' import consul as c %}
 {%- from tplroot ~ '/macros.jinja' import format_kwargs, build_source %}
 
+{%- if c.install %}
+  {#- Manage Consul TLS key and certificate #}
 include:
   - {{ tplroot }}.service
 
-{%- if c.tls.self_signed
-    and 'key_file' in c.config
-    and 'cert_file' in c.config
-%}
-  {#- Create self sifned TLS (SSL) certificate #}
+  {%- if c.tls.self_signed
+      and 'key_file' in c.config
+      and 'cert_file' in c.config
+  %}
+    {#- Create self sifned TLS (SSL) certificate #}
 consul_config_tls_prereq_packages:
   pkg.installed:
     - pkgs: {{ c.tls.packages|json }}
@@ -36,10 +38,10 @@ consul_config_tls_selfsigned_cert:
     - watch_in:
       - service: consul_service_{{ c.service.status }}
 
-{%- elif not c.tls.self_signed
-    and 'key_file' in c.config
-    and 'cert_file' in c.config
-%}
+  {%- elif not c.tls.self_signed
+      and 'key_file' in c.config
+      and 'cert_file' in c.config
+  %}
 
 consul_config_tls_provided_key:
   file.managed:
@@ -62,4 +64,16 @@ consul_config_tls_provided_cert:
     - mode: 640
     - watch_in:
       - service: consul_service_{{ c.service.status }}
+{%- endif %}
+
+{#- Consul is not selected for installation #}
+{%- else %}
+consul_config_tls_install_notice:
+  test.show_notification:
+    - name: consul_config_tls_install_notice
+    - text: |
+        Consul is not selected for installation, current value
+        for 'consul:install': {{ c.install|string|lower }}, if you want to install Consul
+        you need to set it to 'true'.
+
 {%- endif %}

@@ -3,12 +3,14 @@
 {%- from tplroot ~ '/macros.jinja' import format_kwargs %}
 {%- set conf_dir = salt['file.dirname'](c['params']['config-file']) %}
 
+{%- if c.install %}
+  {#- Manage Consul configuration #}
 include:
   - {{ tplroot }}.install
   - {{ tplroot }}.service
   - {{ slsdotpath }}.tls
 
-{#- Create parameters / environment file #}
+  {#- Create parameters / environment file #}
 consul_config_env_file:
   file.managed:
     - name: {{ c.env_file }}
@@ -19,7 +21,7 @@ consul_config_env_file:
     - watch_in:
       - service: consul_service_{{ c.service.status }}
 
-{#- Create data dir #}
+  {#- Create data dir #}
 consul_config_directory:
   file.directory:
     - name: {{ conf_dir }}
@@ -27,7 +29,7 @@ consul_config_directory:
     - group: {{ c.group }}
     - dir_mode: 755
 
-{#- Put config file in place #}
+  {#- Put config file in place #}
 consul_config_file:
   file.managed:
     - name: {{ c['params']['config-file'] }}
@@ -46,7 +48,7 @@ consul_config_file:
     - watch_in:
       - service: consul_service_{{ c.service.status }}
 
-{#- Create data dir #}
+  {#- Create data dir #}
 consul_config_data_directory:
   file.directory:
     - name: {{ c.config.data_dir }}
@@ -56,3 +58,15 @@ consul_config_data_directory:
     - makedirs: True
     - require_in:
       - service: consul_service_{{ c.service.status }}
+
+{#- Consul is not selected for installation #}
+{%- else %}
+consul_config_install_notice:
+  test.show_notification:
+    - name: consul_config_install_notice
+    - text: |
+        Consul is not selected for installation, current value
+        for 'consul:install': {{ c.install|string|lower }}, if you want to install Consul
+        you need to set it to 'true'.
+
+{%- endif %}
