@@ -9,7 +9,7 @@ default:
   group: consul
   root_user: root
   root_group: root
-  bin: /usr/local/bin/consul
+  bin: /usr/bin/consul
   conf_source: consul.json.jinja
   show_changes: false
   temp_dir: /tmp/consul
