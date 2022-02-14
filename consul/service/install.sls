@@ -10,7 +10,7 @@ include:
 
 consul_service_install_systemd_unit:
   file.managed:
-    - name: {{ salt['file.join'](c.systemd_unit_dir,c.service.name ~ '.service') }}
+    - name: {{ salt['file.join'](c.service.systemd.unit_dir,c.service.name ~ '.service') }}
     - source: salt://{{ tplroot }}/files/consul.service.jinja
     - user: {{ c.root_user }}
     - group: {{ c.root_group }}

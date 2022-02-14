@@ -13,7 +13,7 @@ include:
     {#- Install prerequisies #}
 consul_binary_install_prerequisites:
   pkg.installed:
-    - pkgs: {{ c.prereq_pkgs|tojson }}
+    - pkgs: {{ c.binary.prereq_pkgs|tojson }}
 
     {#- Create group and user #}
 consul_binary_install_group:
@@ -47,20 +47,20 @@ consul_binary_install_bin_dir:
     {#- TODO: Download and validate SHA file with gpg? https://www.hashicorp.com/security.html #}
 consul_binary_install_download_archive:
   file.managed:
-    - name: {{ c.temp_dir }}/{{ c.version }}/consul_{{ c.version }}_linux_amd64.zip
-    - source: {{ c.download_remote }}{{ c.version }}/consul_{{ c.version }}_linux_amd64.zip
-    {%- if c.skip_verify %}
+    - name: {{ c.binary.temp_dir }}/{{ c.version }}/consul_{{ c.version }}_linux_amd64.zip
+    - source: {{ c.binary.download_remote }}{{ c.version }}/consul_{{ c.version }}_linux_amd64.zip
+    {%- if c.binary.skip_verify %}
     - skip_verify: True
     {%- else %}
-    - source_hash: {{ c.source_hash_remote }}{{ c.version }}/consul_{{ c.version }}_SHA256SUMS
+    - source_hash: {{ c.binary.source_hash_remote }}{{ c.version }}/consul_{{ c.version }}_SHA256SUMS
     {%- endif %}
     - makedirs: True
     - unless: test -f {{ c.bin }}-{{ c.version }}
 
 consul_binary_install_extract_bin:
   archive.extracted:
-    - name: {{ c.temp_dir }}/{{ c.version }}
-    - source: {{ c.temp_dir }}/{{ c.version }}/consul_{{ c.version }}_linux_amd64.zip
+    - name: {{ c.binary.temp_dir }}/{{ c.version }}
+    - source: {{ c.binary.temp_dir }}/{{ c.version }}/consul_{{ c.version }}_linux_amd64.zip
     - skip_verify: True
     - enforce_toplevel: False
     - require:
@@ -70,7 +70,7 @@ consul_binary_install_extract_bin:
 consul_binary_install_install_bin:
   file.rename:
     - name: {{ c.bin }}-{{ c.version }}
-    - source: {{ c.temp_dir }}/{{ c.version }}/{{ salt['file.basename'](c.bin) }}
+    - source: {{ c.binary.temp_dir }}/{{ c.version }}/{{ salt['file.basename'](c.bin) }}
     - require:
       - file: consul_binary_install_bin_dir
     - watch:
@@ -112,7 +112,7 @@ consul_binary_install_bin_restorecon:
     {#- Remove temporary files #}
 consul_binary_install_cleanup:
   file.absent:
-    - name: {{ c.temp_dir }}
+    - name: {{ c.binary.temp_dir }}
     - require_in:
       - sls: {{ tplroot }}.backup_helper.install
       - sls: {{ tplroot }}.service.install

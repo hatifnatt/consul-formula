@@ -2,6 +2,6 @@
 include:
   - .install
   - .config
-  {%- if c.config.acl.enabled|default(False) %}
+  {%- if c.config.data.acl.enabled|default(False) %}
   - .acl_bootstrap
   {%- endif %}

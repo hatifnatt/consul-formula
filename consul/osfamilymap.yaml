@@ -3,7 +3,8 @@
 # osfamilymap: {}
 ---
 Debian:
-  env_file: /etc/default/consul
+  config:
+    env_file: /etc/default/consul
   repo:
     prerequisites: []
     config:
@@ -13,7 +14,8 @@ Debian:
       clean_file: true
 
 RedHat:
-  env_file: /etc/sysconfig/consul
+  config:
+    env_file: /etc/sysconfig/consul
   repo:
     prerequisites: []
     config:

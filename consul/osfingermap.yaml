@@ -9,7 +9,9 @@ Debian-10:
       - openssl
       - python3-m2crypto
 Debian-9:
-  systemd_unit_dir: /lib/systemd/system
+  service:
+    systemd:
+      unit_dir: /lib/systemd/system
   tls:
     packages:
       - openssl

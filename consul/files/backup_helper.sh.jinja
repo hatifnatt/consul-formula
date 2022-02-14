@@ -2,7 +2,7 @@
 #!/usr/bin/env bash
 CONSUL_HTTP_TOKEN=$(grep -oP "\"master\"\: \"\K(.*)(?=\")" {{ c['params']['config-file'] }})
 DATETIME='date +%F_%H-%M-%S'
-BACKUP_FIlE="{{ c.backup_dir }}/consul_$(hostname)_$($DATETIME).snap"
+BACKUP_FIlE="{{ c.backup.dir }}/consul_$(hostname)_$($DATETIME).snap"
 
 _help(){
   echo "Usage:
@@ -36,7 +36,7 @@ function _backup(){
 }
 
 function _clean(){
-	find "{{ c.backup_dir }}" -type f -delete
+	find "{{ c.backup.dir }}" -type f -delete
 	echo "Old backups are removed"
 }
 
@@ -44,7 +44,7 @@ if [[ $# -eq 0 ]]; then
 	_help
 fi
 
-cd {{ c.backup_dir }}
+cd {{ c.backup.dir }}
 
 while [ $# -gt 0 ]; do
     case "$1" in

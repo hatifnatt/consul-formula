@@ -2,10 +2,10 @@
 {%- from tplroot ~ '/map.jinja' import consul as c %}
 
 {#- Install backup helper script #}
-{%- if c.backup_helper.install or (c.backup_helper is sameas true) %}
+{%- if c.backup.helper.install or (c.backup.helper is sameas true) %}
 consul_backup_helper_install_backup_dir:
   file.directory:
-    - name: {{ c.backup_dir }}
+    - name: {{ c.backup.dir }}
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 750
@@ -27,7 +27,7 @@ consul_backup_helper_install_notice:
     - name: consul_backup_helper_install
     - text: |
         Backup helper script is not selected for installation, current value
-        for 'consul:backup_helper:install': {{ c.backup_helper.install|string|lower }},
+        for 'consul:backup:helper:install': {{ c.backup.helper.install|string|lower }},
         if you want to install Backup helper script for Consul you need to set it to 'true'.
 
 {%- endif %}

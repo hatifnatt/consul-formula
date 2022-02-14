@@ -15,7 +15,7 @@ consul_service_clean_disabled:
 
 consul_service_clean_systemd_unit:
   file.absent:
-    - name: {{ salt['file.join'](c.systemd_unit_dir,c.service.name ~ '.service') }}
+    - name: {{ salt['file.join'](c.service.systemd.unit_dir,c.service.name ~ '.service') }}
     - watch_in:
       - module: consul_service_clean_reload_systemd
 

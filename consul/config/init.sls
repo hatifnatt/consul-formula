@@ -13,7 +13,7 @@ include:
   {#- Create parameters / environment file #}
 consul_config_env_file:
   file.managed:
-    - name: {{ c.env_file }}
+    - name: {{ c.config.env_file }}
     - source: salt://{{ tplroot }}/files/env_params.jinja
     - template: jinja
     - context:
@@ -34,7 +34,7 @@ consul_config_directory:
 consul_config_file:
   file.managed:
     - name: {{ c['params']['config-file'] }}
-    - source: salt://{{ tplroot }}/files/{{ c.conf_source }}
+    - source: salt://{{ tplroot }}/files/{{ c.config.source }}
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 640
@@ -42,7 +42,7 @@ consul_config_file:
     - context:
         tplroot: {{ tplroot }}
     {#- By default don't show changes to don't reveal tokens. #}
-    - show_changes: {{ c.show_changes }}
+    - show_changes: {{ c.config.show_changes }}
     - require:
         - file: consul_config_directory
         - sls: {{ slsdotpath }}.tls
@@ -52,7 +52,7 @@ consul_config_file:
   {#- Create data dir #}
 consul_config_data_directory:
   file.directory:
-    - name: {{ c.config.data_dir }}
+    - name: {{ c.config.data.data_dir }}
     - user: {{ c.user }}
     - group: {{ c.group }}
     - dir_mode: 750

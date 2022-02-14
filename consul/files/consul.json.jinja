@@ -1,2 +1,2 @@
 {% from tplroot ~ "/map.jinja" import consul as c -%}
-{{ c.config|json(indent=2) }}
+{{ c.config.data|json(indent=2) }}

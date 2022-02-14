@@ -2,33 +2,34 @@ default:
   version: 1.9.0
   install: true
   use_upstream: binary # package, repo / binary, archive
-  download_remote: https://releases.hashicorp.com/consul/
-  source_hash_remote: https://releases.hashicorp.com/consul/
-  skip_verify: false
   user: consul
   group: consul
   root_user: root
   root_group: root
   bin: /usr/bin/consul
-  conf_source: consul.json.jinja
-  show_changes: false
-  temp_dir: /tmp/consul
-  backup_dir: /var/lib/consul/backup
-  backup_helper:
-    install: true
-  systemd_unit_dir: /usr/lib/systemd/system
+  backup:
+    helper:
+      install: true
+    dir: /var/lib/consul/backup
   service:
     name: consul
     status: running
     on_boot_state: enabled
     reload: false
+    systemd:
+      unit_dir: /usr/lib/systemd/system
   shell_completion:
     bash:
       install: true
       package: bash-completion
       dir: /etc/bash_completion.d
-  prereq_pkgs:
-    - unzip
+  binary:
+    prereq_pkgs:
+      - unzip
+    download_remote: https://releases.hashicorp.com/consul/
+    source_hash_remote: https://releases.hashicorp.com/consul/
+    skip_verify: false
+    temp_dir: /tmp/consul
   params:
     config-file: /etc/consul.d/consul.json
     pid-file: /run/consul/consul.pid
@@ -43,15 +44,18 @@ default:
       days_valid: 3650
       CN: {{ grains.fqdn }}
   config:
-    data_dir: /var/lib/consul/data
-    server: false
-    ui_config:
-      enabled: true
-    log_level: info
-    acl:
-      enabled: false
-      default_policy: deny
-    telemetry:
-      # 12h retention for better calculated metrics ... I think
-      prometheus_retention_time: 12h
-      disable_hostname: true
+    source: consul.json.jinja
+    show_changes: false
+    data:
+      data_dir: /var/lib/consul/data
+      server: false
+      ui_config:
+        enabled: true
+      log_level: info
+      acl:
+        enabled: false
+        default_policy: deny
+      telemetry:
+        # 12h retention for better calculated metrics ... I think
+        prometheus_retention_time: 12h
+        disable_hostname: true
