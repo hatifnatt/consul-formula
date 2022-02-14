@@ -6,7 +6,7 @@
 include:
   - {{ tplroot }}.shell_completion.bash.clean
   - {{ tplroot }}.backup_helper.clean
-  - {{ slsdotpath }}.service.clean
+  - {{ tplroot }}.service.clean
 
 {#- Remove symlink into system bin dir #}
 consul_binary_clean_bin_symlink:

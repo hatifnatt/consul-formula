@@ -8,7 +8,7 @@
 include:
   - {{ tplroot }}.shell_completion.bash.install
   - {{ tplroot }}.backup_helper.install
-  - {{ slsdotpath }}.service.install
+  - {{ tplroot }}.service.install
 
     {#- Install prerequisies #}
 consul_binary_install_prerequisites:
@@ -35,7 +35,7 @@ consul_binary_install_user:
       - group: consul_binary_install_group
     - require_in:
       - sls: {{ tplroot }}.backup_helper.install
-      - sls: {{ slsdotpath }}.service.install
+      - sls: {{ tplroot }}.service.install
 
     {#- Create directories #}
 consul_binary_install_bin_dir:
@@ -115,7 +115,7 @@ consul_binary_install_cleanup:
     - name: {{ c.temp_dir }}
     - require_in:
       - sls: {{ tplroot }}.backup_helper.install
-      - sls: {{ slsdotpath }}.service.install
+      - sls: {{ tplroot }}.service.install
 
   {#- Another installation method is selected #}
   {%- else %}

@@ -8,7 +8,7 @@
 include:
   - {{ tplroot }}.service
 
-consul_binary_service_install_systemd_unit:
+consul_service_install_systemd_unit:
   file.managed:
     - name: {{ salt['file.join'](c.systemd_unit_dir,c.service.name ~ '.service') }}
     - source: salt://{{ tplroot }}/files/consul.service.jinja
@@ -21,10 +21,10 @@ consul_binary_service_install_systemd_unit:
     - require_in:
       - sls: {{ tplroot }}.service
     - watch_in:
-      - module: consul_binary_service_install_reload_systemd
+      - module: consul_service_install_reload_systemd
 
       {#- Reload systemd after new unit file added, like `systemctl daemon-reload` #}
-consul_binary_service_install_reload_systemd:
+consul_service_install_reload_systemd:
   module.wait:
       {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
       {%- if 'module.run' in salt['config.get']('use_superseded', [])
@@ -37,9 +37,9 @@ consul_binary_service_install_reload_systemd:
       - sls: {{ tplroot }}.service
 
     {%- else %}
-consul_binary_service_install_warning:
+consul_service_install_warning:
   test.configurable_test_state:
-    - name: consul_binary_service_install
+    - name: consul_service_install
     - changes: false
     - result: false
     - comment: |
@@ -50,9 +50,9 @@ consul_binary_service_install_warning:
 
   {#- Another installation method is selected #}
   {%- else %}
-consul_binary_service_install_method:
+consul_service_install_method:
   test.show_notification:
-    - name: consul_binary_service_install_method
+    - name: consul_service_install_method
     - text: |
         Another installation method is selected. If you want to use binary
         installation method set 'consul:use_upstream' to 'binary' or 'archive'.
@@ -61,9 +61,9 @@ consul_binary_service_install_method:
 
 {#- Consul is not selected for installation #}
 {%- else %}
-consul_binary_service_install_notice:
+consul_service_install_notice:
   test.show_notification:
-    - name: consul_binary_service_install
+    - name: consul_service_install
     - text: |
         Consul is not selected for installation, current value
         for 'consul:install': {{ c.install|string|lower }}, if you want to install Consul
