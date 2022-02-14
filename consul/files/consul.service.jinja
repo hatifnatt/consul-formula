@@ -1,17 +1,17 @@
 {% from tplroot ~ "/map.jinja" import consul as c -%}
-{%- set run_dir = salt['file.dirname'](c['params']['pid-file']) %}
+{%- set run_dir = salt['file.dirname'](c.params['pid-file']) %}
 [Unit]
 Description="HashiCorp Consul - A service mesh solution"
 Documentation=https://www.consul.io/
 Requires=network-online.target
 After=network-online.target
-ConditionFileNotEmpty={{ c['params']['config-file'] }}
+ConditionFileNotEmpty={{ c.params['config-file'] }}
 
 [Service]
-EnvironmentFile=-{{ c['env_file'] }}
-User={{ c['user'] }}
-Group={{ c['group'] }}
-PIDFile={{ c['params']['pid-file'] }}
+EnvironmentFile=-{{ c.env_file }}
+User={{ c.user }}
+Group={{ c.group }}
+PIDFile={{ c.params['pid-file'] }}
 PermissionsStartOnly=true
 ExecStartPre=-/bin/mkdir -p {{ run_dir }}
 ExecStartPre=/bin/chown -R {{ c.user }}:{{ c.group }} {{ run_dir }}
