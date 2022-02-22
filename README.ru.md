@@ -1,6 +1,28 @@
+<!-- omit in toc -->
 # consul formula
 
 Формула для установки и настройки HashiCorp Consul.
+
+* [Использование](#использование)
+* [Доступные стейты](#доступные-стейты)
+  * [consul](#consul)
+  * [consul.repo](#consulrepo)
+  * [consul.repo.clean](#consulrepoclean)
+  * [consul.install](#consulinstall)
+  * [consul.binary.install](#consulbinaryinstall)
+  * [consul.binary.clean](#consulbinaryclean)
+  * [consul.config](#consulconfig)
+  * [consul.config.tls](#consulconfigtls)
+  * [consul.service](#consulservice)
+  * [consul.service.install](#consulserviceinstall)
+  * [consul.service.clean](#consulserviceclean)
+  * [consul.backup_helper](#consulbackup_helper)
+  * [consul.shell_completion](#consulshell_completion)
+  * [consul.shell_completion.clean](#consulshell_completionclean)
+  * [consul.shell_completion.bash](#consulshell_completionbash)
+  * [consul.shell_completion.bash.install](#consulshell_completionbashinstall)
+  * [consul.shell_completion.bash.clean](#consulshell_completionbashclean)
+  * [consul.acl_bootstrap](#consulacl_bootstrap)
 
 ## Использование
 
@@ -14,22 +36,56 @@ __ВНИМАНИЕ__
 
 ## Доступные стейты
 
-* [consul](#consul)
-* [consul.install](#consul.install)
-* [consul.config](#consul.config)
-* [consul.acl_bootstrap](#consul.acl_bootstrap)
-
 ### consul
 
 Мета стейт, выполняет все необходимое для настройки сервиса на отдельном хосте.
 
+### consul.repo
+
+Стейт для настройки официального репозитория HashiCorp <https://www.hashicorp.com/blog/announcing-the-hashicorp-linux-repository>
+
+### consul.repo.clean
+
+Стейт для удаления репозитория, используйте с осторожностью, т.к. данный репозиторий используется для всех продуктов HashiCorp.
+
 ### consul.install
 
-Скачивает и устанавливает бинарник, создает systemd юнит файл.
+Вызывает стейт для установки Consul в зависимости от значения пиллара `use_upstream`:
 
-#### Скрипт резервного копирования
+* `binary` или `archive`: установка из архива `consul.binary.install`
+* `package` или `repo`: установка из пакетов `consul.package.install`
 
-При установке параметра `backup_helper: True` `consul.install` так же установит вспомогательный bash скрипт для выполнения резервного копирования. Скрипт устанавливается как `/usr/local/bin/consul_backup`, скрипт должен выполняться от имени пользователя Consul (обычно consul) или от имени суперпользователя, т.к. скрипт извлекает мастер токен из конфигурационного файла агента Counsul. Мастер токен необходим для выполнения команды `consul snapshot save`. На самом деле подойдет любой токен с правами management, но мастер токен проще всего извлечь.
+### consul.binary.install
+
+Установка Conusl из архива
+
+### consul.binary.clean
+
+Удаление Consul установленного из архива
+
+### consul.config
+
+Создает конфигурационный файл. Создает самоподписныой сертификат, или устанавливает готовый сертификат. Запускает сервис.
+
+### consul.config.tls
+
+Управление TLS сертификатами для Consul, при `tls:self_signed: true` будут сгенерированы ключ и самоподписной сертификат и сохранены по путям указаннымм в `consul.config.data.key_file`, `consul.config.data.cert_file`. При `tls:self_signed: false` и наличии данных в `tls:key_file_source`, `tls:cert_file_source` существующие ключ и сертификат будут скопированы по путям указаннымм `consul.config.data.key_file`, `consul.config.data.cert_file`.
+
+### consul.service
+
+Управляет состоянием сервиса consul, в зависимости от значений пилларов `consul.service.status`, `consul.service.on_boot_state`.
+
+### consul.service.install
+
+Устанавливает файл сервиса Consul, на данный момент поддерживается только одна система инициализации - `systemd`.
+
+### consul.service.clean
+
+Останавливает сервис, выключает запуск сервиса при старте ОС, удаляет юнит файл `systemd`.
+
+### consul.backup_helper
+
+При установке параметра `backup:helper:install: true` `consul.backup_helper.install` установит вспомогательный bash скрипт для выполнения резервного копирования. Скрипт устанавливается как `/usr/local/bin/consul_backup`, скрипт должен выполняться от имени пользователя Consul (обычно consul) или от имени суперпользователя, т.к. скрипт извлекает мастер токен из конфигурационного файла агента Counsul. Мастер токен необходим для выполнения команды `consul snapshot save`. На самом деле подойдет любой токен с правами management, но мастер токен проще всего извлечь.
 
 Скрипт принимает два параметра:
 
@@ -51,9 +107,25 @@ users:
       - ALL = (consul) NOPASSWD:/usr/local/bin/consul_backup
 ```
 
-### consul.config
+### consul.shell_completion
 
-Создает конфигурационный файл. Создает самоподписныой сертификат, или устанавливает готовый сертификат. Запускает сервис.
+Вызывает стейты `consul.shell_completion.*` на данный момент только `consul.shell_completion.bash`.
+
+### consul.shell_completion.clean
+
+Вызывает стейты `consul.shell_completion.*.clean` на данный момент только `consul.shell_completion.bash.clean`.
+
+### consul.shell_completion.bash
+
+Вызывает стейт `consul.shell_completion.bash.install`
+
+### consul.shell_completion.bash.install
+
+Устанавливает автодополнение для bash
+
+### consul.shell_completion.bash.clean
+
+Удаляет автодополнение для bash
 
 ### consul.acl_bootstrap
 

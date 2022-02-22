@@ -1,46 +1,56 @@
 consul:
   version: 1.4.1
   # control via pillar will Consul be installed or not
-  # NB not fully implemented yet
   install: true
-  # Formula will try download distributive from %download_remote%/%version%/consul_%version%_linux_amd64.zip
-  # You can put archive with consul on salt-fileserver i.e. /filserver_root/DIST/consul/1.9.0/consul_1.9.0_linux_amd64.zip
-  # Than you can specify salt://DIST/consul/ as 'download_remote'
-  download_remote: https://releases.hashicorp.com/consul/
-  # File with SHA sums will be downloaded from  %source_hash_remote%/%version%/consul_%version%_SHA256SUMS
-  source_hash_remote: https://releases.hashicorp.com/consul/
-  # Skip checksum verification, by default checksum will be verified.
-  # You probably want to disable checksum verification if you download distributive from salt fileserver (salt://...)
-  skip_verify: false
+  # Installation method selection
+  # package, repo - configure official repository (available for Debian and RedHat like systems), then install package
+  # binary, archive - download and install precompiled binary from official server or from salt fileserver
+  use_upstream: binary
   user: consul
   group: consul
   root_user: root
   root_group: root
-  bin: /usr/local/bin/consul
-  conf_source: consul.json.jinja
-  # Don't show diff when updating config file - don't reveal tokens.
-  show_changes: false
-  # Temp dir for manipulations with archive
-  temp_dir: /tmp/consul
-  env_file: /etc/default/consul
-  # Where to store backups
-  backup_dir: /var/lib/consul/backup
-  # Install backup helper script or not
-  backup_helper: true
-  # directory where systemd service unit file will be saved
-  systemd_unit_dir: /usr/lib/systemd/system
+  bin: /usr/bin/consul
+  backup:
+    helper:
+      # Install backup helper script or not
+      install: true
+    # Where to store backups
+    dir: /var/lib/consul/backup
   service:
     name: consul
     # running / dead
     status: running
     # enabled / disabled
     on_boot_state: enabled
-    # use reload instead of restart
+    # When triggering service after configuration changes use reload instead of restart
     reload: false
-  # When triggering service after configuration changes use reload instead of restart
-  reload: false
-  # Install bash completion configuration
-  bash_autocomplete: true
+    # directory where systemd service unit file will be saved
+    systemd:
+      unit_dir: /usr/lib/systemd/system
+  shell_completion:
+    bash:
+      # Install bash completion configuration
+      install: true
+      package: bash-completion
+      dir: /etc/bash_completion.d
+  binary:
+    # List of packages required for binary installation, i.e. unzip
+    # is required to extract archive with consul binary
+    prereq_pkgs:
+      - unzip
+    # Formula will try download distributive from %download_remote%/%version%/consul_%version%_linux_amd64.zip
+    # You can put archive with consul on salt-fileserver i.e.
+    # /filserver_root/DIST/consul/1.9.0/consul_1.9.0_linux_amd64.zip
+    # Then you can specify salt://DIST/consul/ as 'download_remote'
+    download_remote: https://releases.hashicorp.com/consul/
+    # File with SHA sums will be downloaded from  %source_hash_remote%/%version%/consul_%version%_SHA256SUMS
+    source_hash_remote: https://releases.hashicorp.com/consul/
+    # Skip checksum verification, by default checksum will be verified.
+    # You probably want to disable checksum verification if you download distributive from salt fileserver (salt://...)
+    skip_verify: false
+    # Temp dir for manipulations with archive
+    temp_dir: /tmp/consul
   # Start parameters (command line arguments) for consul, consul service will be started with this parameters
   # some parameters have their equivalent in configuration file, it is preferable to put parameters in the config file
   # rather than as command line arguments
@@ -61,21 +71,26 @@ consul:
       days_valid: 3650
       CN: {{ grains.fqdn }}
   config:
-    data_dir: /var/lib/consul
-    server: false
-    # Encryption key encoded with base64. It can be generated with `consul keygen` command or with
-    # `dd if=/dev/urandom bs=1 count=16 2>/dev/null | base64`
-    # `dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64`
-    # Prior version 1.6.0 it was 16 bytes long, since version 1.6.0 it's 32 bytes long
-    # https://www.consul.io/docs/agent/encryption.html
-    encrypt: pLw1SiufNVHDc/FQD4WQN+phbJiLVgiWA31x8rQbq9c=
-    ui_config:
-      enabled: true
-    log_level: info
-    # Consul > 1.0 support go-sockaddr templates for addresses
-    # https://godoc.org/github.com/hashicorp/go-sockaddr/template
-    # client_addr: {% raw %}"{{ GetPrivateIP }}"{% endraw %}
-    # bind_addr: {% raw %}"{{ GetPublicIP }}"{% endraw %}
+    env_file: /etc/default/consul
+    source: consul.json.jinja
+    # Don't show diff when updating config file - don't reveal tokens.
+    show_changes: false
+    data:
+      data_dir: /var/lib/consul
+      server: false
+      # Encryption key encoded with base64. It can be generated with `consul keygen` command or with
+      # `dd if=/dev/urandom bs=1 count=16 2>/dev/null | base64`
+      # `dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64`
+      # Prior version 1.6.0 it was 16 bytes long, since version 1.6.0 it's 32 bytes long
+      # https://www.consul.io/docs/agent/encryption.html
+      encrypt: pLw1SiufNVHDc/FQD4WQN+phbJiLVgiWA31x8rQbq9c=
+      ui_config:
+        enabled: true
+      log_level: info
+      # Consul > 1.0 support go-sockaddr templates for addresses
+      # https://godoc.org/github.com/hashicorp/go-sockaddr/template
+      # client_addr: {% raw %}"{{ GetPrivateIP }}"{% endraw %}
+      # bind_addr: {% raw %}"{{ GetPublicIP }}"{% endraw %}
 
 # Enable HTTPS with self signed certificate
 consul:
@@ -84,11 +99,12 @@ consul:
     cert_params:
       subjectAltName: DNS:vault.example.com, DNS:another.name.tld
   config:
-    ports:
-      https: 8501
-    # it's mandatory to provide path to key and certificate, otherwise certificate will not be issued
-    key_file: /etc/consul.d/tls.key
-    cert_file: /etc/consul.d/tls.crt
+    data:
+      ports:
+        https: 8501
+      # it's mandatory to provide path to key and certificate, otherwise certificate will not be issued
+      key_file: /etc/consul.d/tls.key
+      cert_file: /etc/consul.d/tls.crt
 
 # Enable HTTPS with provided local (on minion) certificate
 consul:
@@ -97,12 +113,13 @@ consul:
     key_file_source: /etc/pki/api/consul/myminion.key
     cert_file_source: /etc/pki/api/consul/myminion.crt
   config:
-    ports:
-      https: 8501
-    # it's mandatory to provide path to key and certificate,
-    # provided key and cert will be copied to key_file and cert_file respectively
-    key_file: /etc/consul.d/tls.key
-    cert_file: /etc/consul.d/tls.crt
+    data:
+      ports:
+        https: 8501
+      # it's mandatory to provide path to key and certificate,
+      # provided key and cert will be copied to key_file and cert_file respectively
+      key_file: /etc/consul.d/tls.key
+      cert_file: /etc/consul.d/tls.crt
 
 
 # Enable and configure ACL
@@ -110,18 +127,19 @@ consul:
 # if you want to enable ACL and use Consul as storage for Vault
 consul:
   config:
-    acl:
-      enabled: true
-      default_policy: deny
-      down_policy: extend-cache
-      tokens:
-        # Any UUID can be used as master token
-        master: uuid-here
-        # Agent token required for internal request, even if you run single agent in server mode.
-        # But it must be generated by running Consul server itself, so you must run state at least twice
-        # first run - get agent token, than paste into consul config in pillar
-        # second run - consul reads agent token from config and can operate normally
-        agent: uuid-here
+    data:
+      acl:
+        enabled: true
+        default_policy: deny
+        down_policy: extend-cache
+        tokens:
+          # Any UUID can be used as master token
+          master: uuid-here
+          # Agent token required for internal request, even if you run single agent in server mode.
+          # But it must be generated by running Consul server itself, so you must run state at least twice
+          # first run - get agent token, than paste into consul config in pillar
+          # second run - consul reads agent token from config and can operate normally
+          agent: uuid-here
   # Create some ACL policies and also set up Anonymous token and Agent token
   policy_bootstrap:
     - name: node-read
