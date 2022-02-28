@@ -8,7 +8,7 @@
 include:
   - {{ tplroot }}.install
   - {{ tplroot }}.service
-  - {{ slsdotpath }}.tls
+  - {{ tplroot }}.config.tls
 
   {#- Create parameters / environment file #}
 consul_config_env_file:
@@ -45,7 +45,7 @@ consul_config_file:
     - show_changes: {{ c.config.show_changes }}
     - require:
         - file: consul_config_directory
-        - sls: {{ slsdotpath }}.tls
+        - sls: {{ tplroot }}.config.tls
     - watch_in:
       - service: consul_service_{{ c.service.status }}
 
