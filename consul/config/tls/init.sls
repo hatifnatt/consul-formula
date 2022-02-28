@@ -8,8 +8,8 @@ include:
   - {{ tplroot }}.service
 
   {%- if c.tls.self_signed
-      and 'key_file' in c.config
-      and 'cert_file' in c.config
+      and 'key_file' in c.config.data
+      and 'cert_file' in c.config.data
   %}
     {#- Create self sifned TLS (SSL) certificate #}
 consul_config_tls_prereq_packages:
@@ -18,7 +18,7 @@ consul_config_tls_prereq_packages:
 
 consul_config_tls_selfsigned_key:
   x509.private_key_managed:
-    - name: {{ c.config.key_file }}
+    - name: {{ c.config.data.key_file }}
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 640
@@ -27,8 +27,8 @@ consul_config_tls_selfsigned_key:
 
 consul_config_tls_selfsigned_cert:
   x509.certificate_managed:
-    - name: {{ c.config.cert_file }}
-    - signing_private_key: {{ c.config.key_file }}
+    - name: {{ c.config.data.cert_file }}
+    - signing_private_key: {{ c.config.data.key_file }}
     {{- format_kwargs(c.tls.cert_params) }}
     - user: {{ c.user }}
     - group: {{ c.group }}
@@ -39,13 +39,13 @@ consul_config_tls_selfsigned_cert:
       - service: consul_service_{{ c.service.status }}
 
   {%- elif not c.tls.self_signed
-      and 'key_file' in c.config
-      and 'cert_file' in c.config
+      and 'key_file' in c.config.data
+      and 'cert_file' in c.config.data
   %}
 
 consul_config_tls_provided_key:
   file.managed:
-    - name: {{ c.config.key_file }}
+    - name: {{ c.config.data.key_file }}
     - source:
     {{- build_source(c.tls.key_file_source, path_prefix='files/tls') }}
     - user: {{ c.user }}
@@ -56,7 +56,7 @@ consul_config_tls_provided_key:
 
 consul_config_tls_provided_cert:
   file.managed:
-    - name: {{ c.config.cert_file }}
+    - name: {{ c.config.data.cert_file }}
     - source:
     {{- build_source(c.tls.cert_file_source, path_prefix='files/tls') }}
     - user: {{ c.user }}
