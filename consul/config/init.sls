@@ -29,6 +29,8 @@ consul_config_directory:
     - user: {{ c.user }}
     - group: {{ c.group }}
     - dir_mode: 755
+    - require_in:
+      - sls: {{ tplroot }}.config.tls
 
   {#- Put config file in place #}
 consul_config_file:

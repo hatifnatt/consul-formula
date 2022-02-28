@@ -22,6 +22,7 @@ consul_config_tls_selfsigned_key:
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 640
+    - makedirs: true
     - require:
       - pkg: consul_config_tls_prereq_packages
 
@@ -33,6 +34,7 @@ consul_config_tls_selfsigned_cert:
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 640
+    - makedirs: true
     - require:
       - x509: consul_config_tls_selfsigned_key
     - watch_in:
@@ -51,6 +53,7 @@ consul_config_tls_provided_key:
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 640
+    - makedirs: true
     - watch_in:
       - service: consul_service_{{ c.service.status }}
 
@@ -62,6 +65,7 @@ consul_config_tls_provided_cert:
     - user: {{ c.user }}
     - group: {{ c.group }}
     - mode: 640
+    - makedirs: true
     - watch_in:
       - service: consul_service_{{ c.service.status }}
 {%- endif %}
