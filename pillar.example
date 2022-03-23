@@ -1,3 +1,4 @@
+---
 consul:
   version: 1.4.1
   # control via pillar will Consul be installed or not
@@ -92,6 +93,7 @@ consul:
       # client_addr: {% raw %}"{{ GetPrivateIP }}"{% endraw %}
       # bind_addr: {% raw %}"{{ GetPublicIP }}"{% endraw %}
 
+---
 # Enable HTTPS with self signed certificate
 consul:
   tls:
@@ -106,6 +108,7 @@ consul:
       key_file: /etc/consul.d/tls.key
       cert_file: /etc/consul.d/tls.crt
 
+---
 # Enable HTTPS with provided local (on minion) certificate
 consul:
   tls:
@@ -121,7 +124,7 @@ consul:
       key_file: /etc/consul.d/tls.key
       cert_file: /etc/consul.d/tls.crt
 
-
+---
 # Enable and configure ACL
 # In example below you can find minimal required policies
 # if you want to enable ACL and use Consul as storage for Vault
