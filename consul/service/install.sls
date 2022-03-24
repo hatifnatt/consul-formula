@@ -3,8 +3,7 @@
 
 {%- if c.install %}
   {#- Install systemd service file #}
-  {%- if c.use_upstream in ('binary', 'archive') %}
-    {%- if grains.init == 'systemd' %}
+  {%- if grains.init == 'systemd' %}
 include:
   - {{ tplroot }}.service
 
@@ -23,20 +22,20 @@ consul_service_install_systemd_unit:
     - watch_in:
       - module: consul_service_install_reload_systemd
 
-      {#- Reload systemd after new unit file added, like `systemctl daemon-reload` #}
+    {#- Reload systemd after new unit file added, like `systemctl daemon-reload` #}
 consul_service_install_reload_systemd:
   module.wait:
-      {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
-      {%- if 'module.run' in salt['config.get']('use_superseded', [])
-      or grains['saltversioninfo'] >= [3005] %}
+    {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
+    {%- if 'module.run' in salt['config.get']('use_superseded', [])
+    or grains['saltversioninfo'] >= [3005] %}
     - service.systemctl_reload: {}
-      {%- else %}
+    {%- else %}
     - name: service.systemctl_reload
-      {%- endif %}
+    {%- endif %}
     - require_in:
       - sls: {{ tplroot }}.service
 
-    {%- else %}
+  {%- else %}
 consul_service_install_warning:
   test.configurable_test_state:
     - name: consul_service_install
@@ -46,17 +45,6 @@ consul_service_install_warning:
         Your OS init system is {{ grains.init }}, currently only systemd init system is supported.
         Service for Consul is not installed.
 
-    {%- endif %}
-
-  {#- Another installation method is selected #}
-  {%- else %}
-consul_service_install_method:
-  test.show_notification:
-    - name: consul_service_install_method
-    - text: |
-        Another installation method is selected. If you want to use binary
-        installation method set 'consul:use_upstream' to 'binary' or 'archive'.
-        Current value of consul:use_upstream: '{{ c.use_upstream }}'
   {%- endif %}
 
 {#- Consul is not selected for installation #}
