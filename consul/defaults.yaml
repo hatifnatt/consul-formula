@@ -17,7 +17,9 @@ default:
     on_boot_state: enabled
     reload: false
     systemd:
-      unit_dir: /usr/lib/systemd/system
+      # do not overwrite service file provided by package
+      # but override it completely
+      unit_dir: /etc/systemd/system
   shell_completion:
     bash:
       install: true

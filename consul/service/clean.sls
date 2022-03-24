@@ -19,6 +19,14 @@ consul_service_clean_systemd_unit:
     - watch_in:
       - module: consul_service_clean_reload_systemd
 
+  {%- if c.use_upstream in ('binary', 'archive') %}
+consul_service_clean_leftover_systemd_unit:
+  file.absent:
+    - name: {{ salt['file.join']('/usr/lib/systemd/system',c.service.name ~ '.service') }}
+    - watch_in:
+      - module: consul_service_clean_reload_systemd
+  {%- endif %}
+
   {#- Reload systemd after unit file is removed, like `systemctl daemon-reload` #}
 consul_service_clean_reload_systemd:
   module.wait:
