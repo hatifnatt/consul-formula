@@ -11,6 +11,8 @@
   * [consul.install](#consulinstall)
   * [consul.binary.install](#consulbinaryinstall)
   * [consul.binary.clean](#consulbinaryclean)
+  * [consul.package.install](#consulpackageinstall)
+  * [consul.package.clean](#consulpackageclean)
   * [consul.config](#consulconfig)
   * [consul.config.tls](#consulconfigtls)
   * [consul.service](#consulservice)
@@ -62,6 +64,14 @@ __ВНИМАНИЕ__
 ### consul.binary.clean
 
 Удаление Consul установленного из архива
+
+### consul.package.install
+
+Установка Conusl из пакетов
+
+### consul.package.clean
+
+Удаление Consul установленного из пакетов
 
 ### consul.config
 

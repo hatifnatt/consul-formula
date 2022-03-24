@@ -29,6 +29,9 @@ CentOS Linux-8:
       - openssl
       - python3-m2crypto
 CentOS Linux-7:
+  package:
+    prereq_pkgs:
+      - yum-plugin-versionlock
   tls:
     packages:
       - openssl

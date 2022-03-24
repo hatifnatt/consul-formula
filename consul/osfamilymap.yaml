@@ -16,6 +16,9 @@ Debian:
 RedHat:
   config:
     env_file: /etc/sysconfig/consul
+  package:
+    prereq_pkgs:
+      - python3-dnf-plugin-versionlock
   repo:
     prerequisites: []
     config:

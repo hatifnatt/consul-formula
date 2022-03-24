@@ -32,6 +32,14 @@ default:
     source_hash_remote: https://releases.hashicorp.com/consul/
     skip_verify: false
     temp_dir: /tmp/consul
+  package:
+    prereq_pkgs: []
+    pkgs_extra: []
+    pkgs:
+      - consul
+    hold: false
+    update_holds: true
+    install_recommends: true
   params:
     config-file: /etc/consul.d/consul.json
     pid-file: /run/consul/consul.pid

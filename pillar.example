@@ -38,6 +38,7 @@ consul:
   binary:
     # List of packages required for binary installation, i.e. unzip
     # is required to extract archive with consul binary
+    # NOTE: those packages won't be removed with consul.binary.clean state
     prereq_pkgs:
       - unzip
     # Formula will try download distributive from %download_remote%/%version%/consul_%version%_linux_amd64.zip
@@ -52,6 +53,20 @@ consul:
     skip_verify: false
     # Temp dir for manipulations with archive
     temp_dir: /tmp/consul
+  package:
+    # List of packages required for packages installation, i.e. python3-dnf-plugin-versionlock
+    # is required on RedHat family to hold packages
+    # NOTE: those packages won't be removed with consul.package.clean state
+    prereq_pkgs: []
+    # List of some extra packages to install
+    # NOTE: those packages won't be removed with consul.package.clean state
+    pkgs_extra: []
+    pkgs:
+      - consul
+    hold: false
+    update_holds: true
+    # only applicable on Debian based systems
+    install_recommends: true
   # Start parameters (command line arguments) for consul, consul service will be started with this parameters
   # some parameters have their equivalent in configuration file, it is preferable to put parameters in the config file
   # rather than as command line arguments
