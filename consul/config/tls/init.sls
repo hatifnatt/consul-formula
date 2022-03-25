@@ -68,6 +68,29 @@ consul_config_tls_provided_cert:
     - makedirs: true
     - watch_in:
       - service: consul_service_{{ c.service.status }}
+
+  {#- Not enough data to configure TLS #}
+  {%- else %}
+consul_config_tls_skipped:
+  test.show_notification:
+    - name: consul_config_tls_skipped
+    - text: |
+        Not enough data to configure TLS.
+        You must provide values for `key_file` and `cert_file` in pillars
+        Current values:
+        consul:config:data:key_file: '{{ c.config.data.get('key_file', '') }}'
+        consul:config:data:cert_file: '{{ c.config.data.get('cert_file', '') }}'
+        
+        Also you need to enable self signed certificate generation
+        consul:tls:self_signed: '{{ c.tls.self_signed|string|lower }}'
+        
+        OR provide existing key and certificate files
+        consul:tls:key_file_source: '{{ c.tls.get('key_file_source', '') }}'
+        consul:tls:cert_file_source: '{{ c.tls.get('cert_file_source', '') }}'
+        Note, formula have default values 'tls.key', 'tls.crt' but actual files
+        are not provided with formula, you neet to put them into folder 'consul/files/tls'
+        on salt file server.
+
 {%- endif %}
 
 {#- Consul is not selected for installation #}
