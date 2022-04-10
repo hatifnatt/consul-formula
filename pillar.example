@@ -105,8 +105,8 @@ consul:
       log_level: info
       # Consul > 1.0 support go-sockaddr templates for addresses
       # https://godoc.org/github.com/hashicorp/go-sockaddr/template
-      # client_addr: {% raw %}"{{ GetPrivateIP }}"{% endraw %}
-      # bind_addr: {% raw %}"{{ GetPublicIP }}"{% endraw %}
+      # client_addr: "{% raw %}{{ GetPrivateIP }}{% endraw %}"
+      # bind_addr: "{% raw %}{{ GetPublicIP }}{% endraw %}"
 
 ---
 # Enable HTTPS with self signed certificate
