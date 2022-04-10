@@ -47,6 +47,8 @@ consul_package_install:
       - service: consul_service_{{ c.service.status }}
     - require:
       - sls: {{ tplroot }}.repo
+    - require_in:
+      - sls: {{ tplroot }}.service.install
 
     {#- Create group and user #}
 consul_package_install_group:
