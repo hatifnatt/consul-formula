@@ -1,6 +1,6 @@
 {% from tplroot ~ "/map.jinja" import consul as c -%}
 #!/usr/bin/env bash
-CONSUL_HTTP_TOKEN=$(grep -oP "\"master\"\: \"\K(.*)(?=\")" {{ c['params']['config-file'] }})
+CONSUL_HTTP_TOKEN=$(grep -oP "\"(master|initial_management)\"\: \"\K(.*)(?=\")" {{ c['params']['config-file'] }})
 DATETIME='date +%F_%H-%M-%S'
 BACKUP_FIlE="{{ c.backup.dir }}/consul_$(hostname)_$($DATETIME).snap"
 
@@ -16,7 +16,7 @@ function _check(){
 		export CONSUL_HTTP_TOKEN
 		return 0
 	else
-		echo "Can't get master token from config file: {{ c['params']['config-file'] }}" > 2
+		echo "Can't get initial_management token from config file: {{ c['params']['config-file'] }}" > 2
 		return 1
 	fi
 }

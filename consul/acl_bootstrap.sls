@@ -33,7 +33,7 @@ consul_policy_{{ policy.name }}_{{ policy.ensure }}:
         {%- endfilter %}
         EOF
     - env:
-      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.master }}
+      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.initial_management }}
     - unless: consul acl policy list | grep -q '^{{ policy.name }}\:'
     - require:
       - cmd: consul_wait
@@ -45,7 +45,7 @@ consul_policy_{{ policy.name }}_{{ policy.ensure }}:
   cmd.run:
     - name: consul acl policy delete -name="{{ policy.name }}"
     - env:
-      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.master }}
+      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.initial_management }}
     - onlyif: consul acl policy list | grep -q '^{{ policy.name }}\:'
     - require:
       - cmd: consul_wait
@@ -62,7 +62,7 @@ consul_policy_{{ policy.name }}_{{ policy.ensure }}:
         {%- endfilter %}
         EOF
     - env:
-      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.master }}
+      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.initial_management }}
     - onlyif: consul acl policy list | grep -q '^{{ policy.name }}\:'
     - require:
       - cmd: consul_wait
@@ -81,7 +81,7 @@ consul_anonymous_token_update:
   cmd.run:
     - name: consul acl token update -id="anonymous" -policy-name="{{ anonymous_policies }}"
     - env:
-      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.master }}
+      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.initial_management }}
     - require:
       - cmd: consul_wait
       - test: consul_acl_support
@@ -100,22 +100,22 @@ consul_agent_token_create:
   cmd.run:
     - name: consul acl token create -description="Salt Created Agent Token" -policy-name="{{ agent_policies }}"
     - env:
-      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.master }}
+      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.initial_management }}
     - unless: consul acl token list | grep -q "Salt Created Agent Token"
     - require:
       - cmd: consul_wait
       - test: consul_acl_support
 
 # Update agent token if any changes in policies list
-{%- set agent_token_id = salt.cmd.shell("CONSUL_HTTP_TOKEN=" ~ c.config.data.acl.tokens.master ~ " consul acl token list 2>/dev/null | grep -B1 'Salt Created Agent Token' | grep -oP 'AccessorID\:\s+ \K(.*)'", output_loglevel='quiet')|default('', True) %}
+{%- set agent_token_id = salt.cmd.shell("CONSUL_HTTP_TOKEN=" ~ c.config.data.acl.tokens.initial_management ~ " consul acl token list 2>/dev/null | grep -B1 'Salt Created Agent Token' | grep -oP 'AccessorID\:\s+ \K(.*)'", output_loglevel='quiet')|default('', True) %}
 {%- if agent_token_id %}
-{%-   set current_agent_policies = salt.cmd.shell("CONSUL_HTTP_TOKEN=" ~ c.config.data.acl.tokens.master ~ " consul acl token read -id " ~ agent_token_id ~ " 2>/dev/null | grep -o '\- .*$'", output_loglevel='quiet')|default('--- []', True)|load_yaml %}
+{%-   set current_agent_policies = salt.cmd.shell("CONSUL_HTTP_TOKEN=" ~ c.config.data.acl.tokens.initial_management ~ " consul acl token read -id " ~ agent_token_id ~ " 2>/dev/null | grep -o '\- .*$'", output_loglevel='quiet')|default('--- []', True)|load_yaml %}
 {%-     if c.agent_token.policies|sort != current_agent_policies|sort and agent_token_id %}
 consul_agent_token_update:
   cmd.run:
     - name: consul acl token update -id="{{ agent_token_id }}" -policy-name="{{ agent_policies }}"
     - env:
-      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.master }}
+      - CONSUL_HTTP_TOKEN: {{ c.config.data.acl.tokens.initial_management }}
     - require:
       - cmd: consul_wait
       - test: consul_acl_support
