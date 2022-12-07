@@ -107,7 +107,7 @@ consul_acl_bootstrap_agent_token_create:
       - test: consul_acl_bootstrap_acl_support
 
       {#- Update agent token if any changes in policies list #}
-      {%- set agent_token_id = salt.cmd.shell("CONSUL_HTTP_TOKEN=" ~ c.config.data.acl.tokens.initial_management ~ " consul acl token list 2>/dev/null | grep -B1 'Salt Created Agent Token' | grep -oP 'AccessorID\:\s+ \K(.*)'", output_loglevel='quiet')|default('', True) %}
+      {%- set agent_token_id = salt.cmd.shell("CONSUL_HTTP_TOKEN=" ~ c.config.data.acl.tokens.initial_management ~ " consul acl token list 2>/dev/null | grep -B2 'Salt Created Agent Token' | grep -oP 'AccessorID\:\s+ \K(.*)'", output_loglevel='quiet')|default('', True) %}
       {%- if agent_token_id %}
         {%- set current_agent_policies = salt.cmd.shell("CONSUL_HTTP_TOKEN=" ~ c.config.data.acl.tokens.initial_management ~ " consul acl token read -id " ~ agent_token_id ~ " 2>/dev/null | grep -o '\- .*$'", output_loglevel='quiet')|default('--- []', True)|load_yaml %}
         {%- if c.agent_token.policies|sort != current_agent_policies|sort and agent_token_id %}
