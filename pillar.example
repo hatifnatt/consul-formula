@@ -187,17 +187,23 @@ consul:
         service_prefix:
           '':
             policy: read
+    # Only required if remote execution is enabled in Consul configuration
+    # disable_remote_exec: false
+    - name: kv-prefix-_rexec-write
+      description: Read Services
+      ensure: create
+      rules:
+        key_prefix:
+          '_rexec':
+            policy: write
     # Policy for HashiCorp Vault
-    # https://www.vaultproject.io/docs/configuration/storage/consul.html#acls
+    # https://developer.hashicorp.com/vault/docs/configuration/storage/consul#acls
     - name: vault
       description: Vault Policy
       ensure: create
       rules:
         key_prefix:
           vault/:
-            policy: write
-        node_prefix:
-          '':
             policy: write
         service:
           vault:
@@ -208,14 +214,16 @@ consul:
         session_prefix:
           '':
             policy: write
-  # Set defaults for anonymous token https://www.consul.io/docs/agent/acl-system.html#acl-tokens
+  # Set defaults for anonymous token
+  # https://developer.hashicorp.com/consul/docs/security/acl/acl-tokens#anonymous-token
   # Allow to read nodes and services
   anonymous_token:
     policies:
       # Those policies must be configured under 'policy_bootstrap' key above.
       - service-read
       - node-read
-  # Set defaults for agent token https://www.consul.io/docs/agent/acl-system.html#acl-agent-token
+  # Set defaults for agent token
+  # https://developer.hashicorp.com/consul/docs/security/acl/acl-tokens#acl-agent-token
   # Description for this token will be "Salt Created Agent Token"
   agent_token:
     policies:
@@ -224,3 +232,6 @@ consul:
       # Agent token must have node write permision, it can be narrowed down to single node,
       # like 'node "mynode" { policy = "write" }' but than every agent must have personal token
       - node-write
+      # Only required if remote execution is enabled in Consul configuration
+      # disable_remote_exec: false
+      - kv-prefix-_rexec-write
