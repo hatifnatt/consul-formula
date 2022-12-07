@@ -1,5 +1,5 @@
 default:
-  version: 1.9.0
+  version: 1.14.2
   install: true
   use_upstream: binary # package, repo / binary, archive
   user: consul

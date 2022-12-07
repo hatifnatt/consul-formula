@@ -1,6 +1,6 @@
 ---
 consul:
-  version: 1.4.1
+  version: 1.14.2
   # control via pillar will Consul be installed or not
   install: true
   # Installation method selection
