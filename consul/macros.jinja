@@ -5,10 +5,10 @@
 
 {% set tplroot = tplfile.split('/')[0] %}
 
-{%- macro format_kwargs(kwarg) -%}
+{%- macro format_kwargs(kwarg, ind=4) -%}
   {%- if kwarg and kwarg is mapping %}
 
-  {%- filter indent(4) %}
+  {%- filter indent(ind) %}
     {%- for k, v in kwarg|dictsort() %}
 - {{ k }}: {{ v|tojson }}
     {%- endfor %}

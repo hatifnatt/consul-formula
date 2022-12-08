@@ -160,6 +160,19 @@ consul:
           # first run - get agent token, than paste into consul config in pillar
           # second run - consul reads agent token from config and can operate normally
           agent: uuid-here
+  acl:
+    # Environment variables used when working with ACLs
+    # Check for valid options here https://developer.hashicorp.com/consul/commands#environment-variables
+    # `initial_management` token will be added automatically as CONSUL_HTTP_TOKEN environment variable
+    # but can be overrriden if necessary
+    # If you running Consul on HTTPS only or on non standart port you MUST set CONSUL_HTTP_ADDR
+    # if you are using self signed certificate you probably also need to set CONSUL_HTTP_SSL_VERIFY=false
+    # or CONSUL_CACERT=ca.crt - path to a CA file to use for TLS when communicating with Consul
+    runtime_env:
+      # use https with self signed certificate
+      CONSUL_HTTP_ADDR: https://127.0.0.1:8501
+      # note "false" MUST be passed as a string, not as a boolean
+      CONSUL_HTTP_SSL_VERIFY: "false"
   # Create some ACL policies and also set up Anonymous token and Agent token
   policy_bootstrap:
     - name: node-read
