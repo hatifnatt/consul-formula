@@ -25,9 +25,10 @@ consul_service_install_systemd_unit:
     {#- Reload systemd after new unit file added, like `systemctl daemon-reload` #}
 consul_service_install_reload_systemd:
   module.wait:
-    {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005 #}
+    {#- Workaround for deprecated `module.run` syntax, subject to change in Salt 3005
+        In Salt 3005 another issues arised https://github.com/saltstack/salt/issues/63400 #}
     {%- if 'module.run' in salt['config.get']('use_superseded', [])
-    or grains['saltversioninfo'] >= [3005] %}
+        and grains['saltversioninfo'] < [3005] %}
     - service.systemctl_reload: {}
     {%- else %}
     - name: service.systemctl_reload
